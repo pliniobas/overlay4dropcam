@@ -1,0 +1,66 @@
+{
+    "legrec": "Escrever rec para gravar ou qualquer outra coisa para pausar",
+    "rec": "stop",
+    "recloc": [
+        640,
+        20
+    ],
+    "legloc": "locs sao distancia do canto superior direito (horizontal,vertical)",
+    "cia1text": "overlay4dropcam",
+    "cia1loc": [
+        10,
+        30
+    ],
+    "cia1logo": "logo1.jpg",
+    "cia1logopos": [
+        40,
+        40
+    ],
+    "cia1logoscale": 0.5,
+    "cia2text": "overlay4\ndropcam",
+    "cia2loc": [
+        950,
+        70
+    ],
+    "cia2logo": "logo2.jpg",
+    "cia2logopos": [
+        1100,
+        20
+    ],
+    "cia2logoscale": 0.5,
+    "dateloc": [
+        10,
+        900
+    ],
+    "utmloc": [
+        980,
+        800
+    ],
+    "depthloc": [
+        980,
+        900
+    ],
+    "targetloc": [
+        600,
+        50
+    ],
+    "fontScale": 1,
+    "lfjump": 30,
+    "color": [
+        0,
+        255,
+        255
+    ],
+    "thickness": 2,
+    "fps": 15,
+    "zoom": 2,
+    "zoomtlocprop": 2,
+    "serialouIP": "IP",
+    "legenda1": "Entrada de dados Shared Memory da porta serial",
+    "comport": "COM30",
+    "baudrate": 9600,
+    "legTCP": "Entrada de dados Share Memoru via porta TCP",
+    "TCP_IP": "127.0.0.1",
+    "TCP_PORT": 8001,
+    "legUTM": "UTM 23 S"
+}
