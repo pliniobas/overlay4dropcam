@@ -61,7 +61,7 @@
     "comport": "COM30",
     "baudrate": 9600,
     "legTCP": "Entrada de dados Share Memoru via porta TCP",
-    "TCP_IP": "192.168.0.150",
+    "TCP_IP": "127.0.0.1",
     "TCP_PORT": 8001,
     "legUTM": "UTM 23 S"
 }

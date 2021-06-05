@@ -3,50 +3,50 @@
     "legrec": "Escrever rec para gravar ou qualquer outra coisa para pausar",
     "rec": "stop",
     "recloc": [
-        500,
-        20
+        160,
+        10
     ],
     "fps": 15,
-    "zoom": 3,
-    "zoomloc": 1,
+    "zoom": 2,
+    "zoomloc": 2,
     "legloc": "locs sao distancia do canto superior direito (horizontal,vertical)",
     "cia1text": "overlay4dropcam",
     "cia1loc": [
-        20,
-        40
+        10,
+        20
     ],
     "cia1logo": "logo1.jpg",
     "cia1logoscale": 0.5,
     "cia1logopos": [
-        20,
-        50
+        10,
+        30
     ],
     "cia2text": "overlay4\ndropcam",
     "cia2loc": [
-        900,
-        40
+        270,
+        20
     ],
     "cia2logo": "logo2.jpg",
     "cia2logoscale": 0.48,
     "cia2logopos": [
-        890,
-        90
+        270,
+        40
     ],
     "dateloc": [
-        20,
-        800
+        10,
+        260
     ],
     "utmloc": [
-        720,
-        700
+        250,
+        200
     ],
     "depthloc": [
-        720,
-        800
+        200,
+        260
     ],
     "targetloc": [
-        490,
-        60
+        160,
+        30
     ],
     "fontScale": 1,
     "lfjump": 30,
@@ -61,7 +61,7 @@
     "comport": "COM30",
     "baudrate": 9600,
     "legTCP": "Entrada de dados Share Memoru via porta TCP",
-    "TCP_IP": "192.168.0.150",
+    "TCP_IP": "127.0.0.1",
     "TCP_PORT": 8001,
     "legUTM": "UTM 23 S"
 }

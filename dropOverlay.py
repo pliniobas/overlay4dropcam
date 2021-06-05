@@ -20,8 +20,8 @@ print("APERTE A TECLA q PARA FECHAR A JANELA DE VIDEO E ENCERRAR O PROGRAMA")
 
 print("aperte a tecla r para iniciar a gravacao")
 print('VERIFIQUE PELOS SEGUNDOS DO HORARIO A TAXA DE FPS NO ARQUIVO GRAVADO.')
-print("Se estiver muito lento, aumenta a taxa de fps no arquivo")
-print("Se estiver muito rapido, diminua a taxa de fps no arquivo")
+print("Se estiver muito lento, aumenta a taxa de fps no arquivo de configuracao")
+print("Se estiver muito rapido, diminua a taxa de fps no arquivo de configuracao")
 
 
 time.sleep(0.2)
@@ -39,25 +39,25 @@ except Exception as e:
                 cameraip = "rtsp://10.0.0.1",
                 legrec = "Escrever rec para gravar ou qualquer outra coisa para pausar",
                 rec = "stop",
-                recloc = (320,10),
+                recloc = (160,10),
                 fps = 15,
                 zoom = 2,
                 zoomloc = 2,
                 legloc = "locs sao distancia do canto superior direito (horizontal,vertical)",
                 cia1text = "overlay4dropcam",
-                cia1loc = (10,30),
+                cia1loc = (10,20),
                 cia1logo = "logo1.jpg",
-                cia1logopos = (20,80),
-                cia1logoscale = 1,
+                cia1logoscale = 0.5,
+                cia1logopos = (10,30),
                 cia2text = "overlay4\ndropcam",
-                cia2loc = (250,10),
+                cia2loc = (270,20),
                 cia2logo = "logo2.jpg",
-                cia2logopos = (500,30),
-                cia2logoscale = 1,
-                dateloc = (20,450),
-                utmloc = (490,400),
-                depthloc = (290,225),
-                targetloc = (250,250),
+                cia2logoscale = 0.48,
+                cia2logopos = (270,40),
+                dateloc = (10,260),
+                depthloc = (200,260),
+                utmloc = (250,200),
+                targetloc = (160,30),
                 fontScale = 1,
                 lfjump = 30, 
                 color = (0, 255, 255),
@@ -76,9 +76,9 @@ except Exception as e:
         f.write(temp)
         f.close()
     print("Verifique as configuracoes de porta ou IP no novo modelo de arquivo de configuracao ")
-    print("encerrando o programa")
-    time.sleep(3)
-    sys.exit(5)
+    # print("encerrando o programa")
+    time.sleep(1)
+    # sys.exit(5)
 
 
 
@@ -120,20 +120,7 @@ else:
 
 
 #%%
-# os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
 
-# cap = cv.VideoCapture("rtsp://10.0.0.1/",cv.CAP_FFMPEG) #Captura da dropcam. Comentar ou descomentar
-# cap = cv.VideoCapture("rtsp://10.0.0.1/",cv.CAP_FFMPEG) #Captura da dropcam. Comentar ou descomentar
-# cap = cv.VideoCapture(0) #captura da webcam. #Comentar ou descomentar
-if config['cameraip']:
-    cap = cv.VideoCapture(config['cameraip'],cv.CAP_FFMPEG)
-    # cap = cv.VideoCapture(config['cameraip']) #Captura da dropcam. Comentar ou descomentar
-else:
-    cap = cv.VideoCapture(0,cv.CAP_DSHOW) #captura da webcam. #Comentar ou descomentar
-
-if not cap.isOpened():
-    print("Cannot open camera")
-    sys.exit()
     
 
 
@@ -170,16 +157,31 @@ def transparentOverlay(src, overlay, pos=(0, 0), scale=1):
     
     return src
 
+#%% Auxiliares
 
-
-#%%
-#%%
-#%%
-#%%
 rec = config['rec'] #auxiliar, nao apagar
 hydata = 'x x x x x x x x x x x x x x\r\n' #temporario enquanto a porta nao pega dados do shared memory
 result = cv.VideoWriter() #auxiliar, nao apagar.
 result.release()
+ret = False
+
+#%%
+os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
+# cap = cv.VideoCapture("rtsp://10.0.0.1/",cv.CAP_FFMPEG) #Captura da dropcam. Comentar ou descomentar
+# cap = cv.VideoCapture("rtsp://10.0.0.1/",cv.CAP_FFMPEG) #Captura da dropcam. Comentar ou descomentar
+# cap = cv.VideoCapture(0) #captura da webcam. #Comentar ou descomentar
+if config['cameraip']:
+    cap = cv.VideoCapture(config['cameraip'],cv.CAP_FFMPEG)
+    # cap = cv.VideoCapture(config['cameraip']) #Captura da dropcam. Comentar ou descomentar
+    ret, frame = cap.read()
+else:
+    cap = cv.VideoCapture(0,cv.CAP_DSHOW) #captura da webcam. #Comentar ou descomentar
+    ret, frame = cap.read()
+    
+if not cap.isOpened():
+    print("Cannot open camera")
+    sys.exit()
+
 
 while True:
 
@@ -191,26 +193,70 @@ while True:
     #mudar o tamanho do frame de video
     zoom = config["zoom"]
     size = (frame_width*zoom, frame_height*zoom)
-    
-    
     ret, frame = cap.read()
+    # while ret == False:
+        # print('retry ret...')
+        # ret, frame = cap.read()
+        # if ret == False:
+        ############
+            # if config['cameraip']:
+            #     cap = cv.VideoCapture(config['cameraip'],cv.CAP_FFMPEG)
+            #     # cap = cv.VideoCapture(config['cameraip']) #Captura da dropcam. Comentar ou descomentar
+            #     ret, frame = cap.read()
+                
+            # else:
+            #     cap = cv.VideoCapture(0,cv.CAP_DSHOW) #captura da webcam. #Comentar ou descomentar
+            #     ret, frame = cap.read()
+
+            # if ret:
+            #     break
+                
+            # if not cap.isOpened():
+            #     print("Cannot open camera")
+            #     sys.exit()
+        ############    
+    # if not ret:
+    #     print("Can't receive frame (stream end?). Exiting ...")
+    #     break
+    
     try:
-        frame = cv.resize(frame,size,fx=0,fy=0, interpolation = cv.INTER_CUBIC)
+        # frame = cv.resize(frame,size,fx=0,fy=0, interpolation = cv.INTER_CUBIC)
+        frame = cv.resize(frame,size,fx=0,fy=0, interpolation = cv.INTER_NEAREST )
     except Exception as e:
         print(e)
         print("Conexao com a camera perdida. Ira encerrar o programa")
         time.sleep(3)
         break
+
     
-    # if frame is read correctly ret is True
-    if not ret:
-        print("Can't receive frame (stream end?). Exiting ...")
-        break
+    #%%CONFIGURACOES EM TEMPO REAL NO ARQUIVO TXT / JSON
+    try:
+        with open('dropOverlay-config.txt') as f:
+            temp = f.read()
+            config = json.loads(temp)   
+    
+        cia1loc = config["cia1loc"]
+        cia2loc = config["cia2loc"]
+        dateloc = config["dateloc"]
+        utmloc = config["utmloc"]
+        depthloc = config["depthloc"]
+        targetloc = config["targetloc"]
+        fontScale = config["fontScale"]
+        lfjump = config["lfjump"]
+        color = config["color"]
+        thickness = config["thickness"]
+        zoom = config["zoom"]
+        zoomloc = config["zoomloc"]
+        
+    
+    except:
+        pass
     #%%INSERE LOGOTIPOS
 
     if config['cia1logo']:
         waterImg = cv.imread(config['cia1logo'], -1)
         pos = config['cia1logopos']
+        pos = (pos[0] *zoomloc, pos[1] *zoomloc)
         framecopy = frame.copy()
         # opacity = 1
         
@@ -221,6 +267,7 @@ while True:
     if config['cia2logo']:
         waterImg = cv.imread(config['cia2logo'], -1)
         pos = config['cia2logopos']
+        pos = (pos[0] *zoomloc, pos[1] *zoomloc)
         framecopy = frame.copy()
         
         
@@ -251,33 +298,12 @@ while True:
     # thickness = 2
 
     
-    #%%CONFIGURACOES EM TEMPO REAL NO ARQUIVO TXT / JSON
-    try:
-        with open('dropOverlay-config.txt') as f:
-            temp = f.read()
-            config = json.loads(temp)   
-    
-        cia1loc = config["cia1loc"]
-        cia2loc = config["cia2loc"]
-        dateloc = config["dateloc"]
-        utmloc = config["utmloc"]
-        depthloc = config["depthloc"]
-        targetloc = config["targetloc"]
-        fontScale = config["fontScale"]
-        lfjump = config["lfjump"]
-        color = config["color"]
-        thickness = config["thickness"]
-        tprop = config["zoomtlocprop"]
-        zoom = config["zoom"]
-        tprop = config["zoomtlocprop"]
-    
-    except:
-        pass
+
    
     #%%NOME DO CLIENTE
     texto = config['cia1text']
     # org = (10 ,20 ) #Local - distancia do canto superior direito (horizontal,vertical)
-    org = (cia1loc[0] ,cia1loc[1]) #Local - distancia do canto superior direito (horizontal,vertical)
+    org = (cia1loc[0]  *zoomloc,cia1loc[1] *zoomloc) #Local - distancia do canto superior direito (horizontal,vertical)
     for ix, line in enumerate(texto.split('\n')): #loop para caso hava quebra de linha (\n)
         org2 = (org[0],org[1]+ix*lfjump) 
         cv.putText(frame, line, org2, font, fontScale, color, thickness, cv.LINE_AA)
@@ -285,7 +311,7 @@ while True:
     #%%NOME DO PRESTADOR DE SERVICO
     texto = config['cia2text']
     # org = (500,20) #Local - distancia do canto superior direito (horizontal,vertical)
-    org = (cia2loc[0],cia2loc[1]) #Local - distancia do canto superior direito (horizontal,vertical)
+    org = (cia2loc[0] *zoomloc,cia2loc[1] *zoomloc) #Local - distancia do canto superior direito (horizontal,vertical)
     for ix, line in enumerate(texto.split('\n')): #loop para caso hava quebra de linha (\n)
         org2 = (org[0],org[1]+ix*lfjump) 
         cv.putText(frame, line, org2, font, fontScale, color, thickness, cv.LINE_AA)
@@ -293,7 +319,7 @@ while True:
     #%%DATA E HORA EXTRAIDA DO COMPUTADOR LOCAL
     texto = datetime.datetime.now().strftime("%d/%m/%Y\n%H:%M:%S UTC")
     # org = (10,330) #Local - distancia do canto superior direito (horizontal,vertical)
-    org = (dateloc[0],dateloc[1]) #Local - distancia do canto superior direito (horizontal,vertical)
+    org = (dateloc[0] *zoomloc,dateloc[1] *zoomloc) #Local - distancia do canto superior direito (horizontal,vertical)
     for ix, line in enumerate(texto.split('\n')): #loop para caso hava quebra de linha (\n)
         org2 = (org[0],org[1]+ix*lfjump) 
         cv.putText(frame, line, org2, font, fontScale, color, thickness, cv.LINE_AA) 
@@ -304,7 +330,7 @@ while True:
     texto += "N: %s"%temp[1] + '\n'
     texto += "E: %s"%temp[0]
     # sys.exit()
-    org = (utmloc[0],utmloc[1]) #Local - distancia do canto superior direito (horizontal,vertical)
+    org = (utmloc[0] *zoomloc,utmloc[1] *zoomloc) #Local - distancia do canto superior direito (horizontal,vertical)
     for ix, line in enumerate(texto.split('\n')): #loop para caso hava quebra de linha (\n)
         org2 = (org[0],org[1]+ix*lfjump) 
         cv.putText(frame, line, org2, font, fontScale, color, thickness, cv.LINE_AA) 
@@ -314,7 +340,7 @@ while True:
     texto = "localDepth: %s"%temp[2] + '\n'
     texto += "CamDepth: %s"%temp[3]
     
-    org = (depthloc[0],depthloc[1]) #Local - distancia do canto superior direito (horizontal,vertical)
+    org = (depthloc[0]  *zoomloc,depthloc[1]  *zoomloc) #Local - distancia do canto superior direito (horizontal,vertical)
     for ix, line in enumerate(texto.split('\n')): #loop para caso hava quebra de linha (\n)
         org2 = (org[0],org[1]+ix*lfjump) 
         cv.putText(frame, line, org2, font, fontScale, color, thickness, cv.LINE_AA) 
@@ -323,7 +349,7 @@ while True:
     temp = hydata.replace('\n','').replace('\r','').split(' ')
     texto = "tgt %s"%temp[4]
 
-    org = (targetloc[0],targetloc[1]) #Local - distancia do canto superior direito (horizontal,vertical)
+    org = (targetloc[0]  *zoomloc,targetloc[1] *zoomloc) #Local - distancia do canto superior direito (horizontal,vertical)
     for ix, line in enumerate(texto.split('\n')): #loop para caso hava quebra de linha (\n)
         org2 = (org[0],org[1]+ix*lfjump) 
         cv.putText(frame, line, org2, font, fontScale, color, thickness, cv.LINE_AA) 
@@ -331,6 +357,7 @@ while True:
     #%%Legenda rec ou stop
     fontScale2 = 0.5
     org2 = config['recloc']
+    org2 = (org2[0]  *zoomloc,org2[1]  *zoomloc)
     text = rec
     if rec == "rec":
         colorrec = (0,0,255)
