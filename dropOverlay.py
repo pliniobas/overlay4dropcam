@@ -32,7 +32,7 @@ except Exception as e:
     print(e)
     print("Nao foi possivel abrir arquivo de configuração. Criando modelo novo.")
     config = dict(
-        
+                camperaip = "rtsp://10.0.0.1",
                 legrec = "Escrever rec para gravar ou qualquer outra coisa para pausar",
                 rec = "stop",
                 recloc = (640,20),
@@ -77,36 +77,6 @@ except Exception as e:
     sys.exit(5)
 
 
-#%%
-os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
-
-# cap = cv.VideoCapture("rtsp://10.0.0.1/",cv.CAP_FFMPEG) #Captura da dropcam. Comentar ou descomentar
-# cap = cv.VideoCapture(0) #captura da webcam. #Comentar ou descomentar
-cap = cv.VideoCapture(0,cv.CAP_DSHOW) #captura da webcam. #Comentar ou descomentar
-if not cap.isOpened():
-    print("Cannot open camera")
-    sys.exit()
-    
-frame_width = int(cap.get(3))
-frame_height = int(cap.get(4))
-
-
-#mudar o tamanho do frame de video
-zoom = config["zoom"]
-tprop = config["zoomtlocprop"]
-size = (frame_width*zoom, frame_height*zoom)
-
-fps = cap.get(cv.CAP_PROP_FPS)
-print('fps = ',fps)
-fps = config["fps"]
-print('fps = ',fps)
-# Below VideoWriter object will create
-# a frame of above defined The output 
-video_filename = "video_" + datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S") + '.avi'
-result = cv.VideoWriter(video_filename, 
-                         cv.VideoWriter_fourcc(*'XVID'),
-                         fps,#fps é referente ao frame rate da camera
-                         size) 
 
 
 #%%Ou brindo a porta TCP 
@@ -129,9 +99,7 @@ if config["serialouIP"] == "IP":
         print("Nao foi possivel conectar a porta TCP em %s na porta %d"%(TCP_IP,TCP_PORT))
         print("Verifique e tente novamente")
         s.close()
-        time.sleep(10)
-        # sys.exit(10)
-
+        
 #%%Ou abrindo a porta Serial 
 elif config["serialouIP"] == "serial" or config["serialouIP"] == "Serial":
     try:
@@ -139,7 +107,7 @@ elif config["serialouIP"] == "serial" or config["serialouIP"] == "Serial":
     except Exception as e:
         print(e)
         print("A porta serial nao pode ser aberta. Tentando novamente")
-        time.sleep(10)
+        # time.sleep(10)
         ser.close()
         sys.exit(11)
 
@@ -147,12 +115,55 @@ else:
     pass
 
 
+#%%
+# os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
+
+# cap = cv.VideoCapture("rtsp://10.0.0.1/",cv.CAP_FFMPEG) #Captura da dropcam. Comentar ou descomentar
+# cap = cv.VideoCapture("rtsp://10.0.0.1/",cv.CAP_FFMPEG) #Captura da dropcam. Comentar ou descomentar
+# cap = cv.VideoCapture(0) #captura da webcam. #Comentar ou descomentar
+if config['cameraip']:
+    cap = cv.VideoCapture(config['cameraip'],cv.CAP_FFMPEG)
+    # cap = cv.VideoCapture("rtsp://10.0.0.1/") #Captura da dropcam. Comentar ou descomentar
+else:
+    cap = cv.VideoCapture(0,cv.CAP_DSHOW) #captura da webcam. #Comentar ou descomentar
+
+
+if not cap.isOpened():
+    print("Cannot open camera")
+    sys.exit()
+    
+frame_width = int(cap.get(3))
+frame_height = int(cap.get(4))
+
+
+#mudar o tamanho do frame de video
+zoom = config["zoom"]
+tprop = config["zoomtlocprop"]
+size = (frame_width*zoom, frame_height*zoom)
+
+# fps = cap.get(cv.CAP_PROP_FPS)
+# print('fps = ',fps)
+fps = config["fps"]
+print('fps = ',fps)
+# Below VideoWriter object will create
+# a frame of above defined The output 
+video_filename = "video_" + datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S") + '.avi'
+result = cv.VideoWriter(video_filename, 
+                         cv.VideoWriter_fourcc(*'XVID'),
+                         fps,#fps é referente ao frame rate da camera
+                         size) 
+
+
 #%%LENDO UM FRAME DO LADO DE FORA DO LOOP PARA CALCULAR O OVERLAY DO LOGO
-ret, frame = cap.read()
-frame = cv.resize(frame,size,fx=0,fy=0, interpolation = cv.INTER_CUBIC)
+
+# t0 = time.time()
+# while not frame:
+# ret, frame = cap.read()
+
+# frame = cv.resize(frame,size,fx=0,fy=0, interpolation = cv.INTER_CUBIC)
 # if frame is read correctly ret is True
-if not ret:
-    print("Can't receive frame (stream end?). Exiting ...")
+# if not ret:
+#     print("Can't receive frame (stream end?). Exiting ...")
     
 #%%
 
@@ -199,7 +210,14 @@ while True:
     #%%CAPTURA O FRAME DA CAMERA
     # Capture frame-by-frame
     ret, frame = cap.read()
-    frame = cv.resize(frame,size,fx=0,fy=0, interpolation = cv.INTER_CUBIC)
+    try:
+        frame = cv.resize(frame,size,fx=0,fy=0, interpolation = cv.INTER_CUBIC)
+    except Exception as e:
+        print(e)
+        print("Conexao com a camera perdida. Ira encerrar o programa")
+        time.sleep(3)
+        break
+    
     # if frame is read correctly ret is True
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
