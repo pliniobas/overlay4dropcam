@@ -14,12 +14,16 @@ import json
 import serial
 import socket
 
-print("APERTE A TECLA Q PARA FECHAR A JANELA DE VIDEO E ENCERRAR O PROGRAMA")
-print("APERTE A TECLA Q PARA FECHAR A JANELA DE VIDEO E ENCERRAR O PROGRAMA")
-print("APERTE A TECLA Q PARA FECHAR A JANELA DE VIDEO E ENCERRAR O PROGRAMA")
-print("APERTE A TECLA Q PARA FECHAR A JANELA DE VIDEO E ENCERRAR O PROGRAMA")
-print("APERTE A TECLA Q PARA FECHAR A JANELA DE VIDEO E ENCERRAR O PROGRAMA")
-print("APERTE A TECLA Q PARA FECHAR A JANELA DE VIDEO E ENCERRAR O PROGRAMA")
+print("APERTE A TECLA q PARA FECHAR A JANELA DE VIDEO E ENCERRAR O PROGRAMA")
+print("APERTE A TECLA q PARA FECHAR A JANELA DE VIDEO E ENCERRAR O PROGRAMA")
+print("APERTE A TECLA q PARA FECHAR A JANELA DE VIDEO E ENCERRAR O PROGRAMA")
+
+print("aperte a tecla r para iniciar a gravacao")
+print('VERIFIQUE PELOS SEGUNDOS DO HORARIO A TAXA DE FPS NO ARQUIVO GRAVADO.')
+print("Se estiver muito lento, aumenta a taxa de fps no arquivo")
+print("Se estiver muito rapido, diminua a taxa de fps no arquivo")
+
+
 time.sleep(0.2)
 
 
@@ -32,32 +36,32 @@ except Exception as e:
     print(e)
     print("Nao foi possivel abrir arquivo de configuração. Criando modelo novo.")
     config = dict(
-                camperaip = "rtsp://10.0.0.1",
+                cameraip = "rtsp://10.0.0.1",
                 legrec = "Escrever rec para gravar ou qualquer outra coisa para pausar",
                 rec = "stop",
-                recloc = (640,20),
+                recloc = (320,10),
+                fps = 15,
+                zoom = 2,
+                zoomloc = 2,
                 legloc = "locs sao distancia do canto superior direito (horizontal,vertical)",
-                cia1text = "cia1text\ncia1text\ncia1text",
-                cia1loc = (10,20),
+                cia1text = "overlay4dropcam",
+                cia1loc = (10,30),
                 cia1logo = "logo1.jpg",
                 cia1logopos = (20,80),
                 cia1logoscale = 1,
-                cia2text = "cia2text",
-                cia2loc = (500,20),
+                cia2text = "overlay4\ndropcam",
+                cia2loc = (250,10),
                 cia2logo = "logo2.jpg",
-                cia2logopos = (1000,60),
-                cia2logoscale = 1.5,
-                dateloc = (20,900),
-                utmloc = (980,800),
-                depthloc = (490,450),
-                targetloc = (500,500),
+                cia2logopos = (500,30),
+                cia2logoscale = 1,
+                dateloc = (20,450),
+                utmloc = (490,400),
+                depthloc = (290,225),
+                targetloc = (250,250),
                 fontScale = 1,
                 lfjump = 30, 
                 color = (0, 255, 255),
                 thickness = 2,
-                fps = 15,
-                zoom = 2,
-                zoomtlocprop = 2,
                 serialouIP = "IP",
                 legenda1 = "Entrada de dados Shared Memory da porta serial",
                 comport = "COM30",
@@ -123,48 +127,18 @@ else:
 # cap = cv.VideoCapture(0) #captura da webcam. #Comentar ou descomentar
 if config['cameraip']:
     cap = cv.VideoCapture(config['cameraip'],cv.CAP_FFMPEG)
-    # cap = cv.VideoCapture("rtsp://10.0.0.1/") #Captura da dropcam. Comentar ou descomentar
+    # cap = cv.VideoCapture(config['cameraip']) #Captura da dropcam. Comentar ou descomentar
 else:
     cap = cv.VideoCapture(0,cv.CAP_DSHOW) #captura da webcam. #Comentar ou descomentar
-
 
 if not cap.isOpened():
     print("Cannot open camera")
     sys.exit()
     
-frame_width = int(cap.get(3))
-frame_height = int(cap.get(4))
 
 
-#mudar o tamanho do frame de video
-zoom = config["zoom"]
-tprop = config["zoomtlocprop"]
-size = (frame_width*zoom, frame_height*zoom)
 
-# fps = cap.get(cv.CAP_PROP_FPS)
-# print('fps = ',fps)
-fps = config["fps"]
-print('fps = ',fps)
-# Below VideoWriter object will create
-# a frame of above defined The output 
-video_filename = "video_" + datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S") + '.avi'
-result = cv.VideoWriter(video_filename, 
-                         cv.VideoWriter_fourcc(*'XVID'),
-                         fps,#fps é referente ao frame rate da camera
-                         size) 
-
-
-#%%LENDO UM FRAME DO LADO DE FORA DO LOOP PARA CALCULAR O OVERLAY DO LOGO
-
-# t0 = time.time()
-# while not frame:
-# ret, frame = cap.read()
-
-# frame = cv.resize(frame,size,fx=0,fy=0, interpolation = cv.INTER_CUBIC)
-# if frame is read correctly ret is True
-# if not ret:
-#     print("Can't receive frame (stream end?). Exiting ...")
-    
+   
 #%%
 
 def transparentOverlay(src, overlay, pos=(0, 0), scale=1):
@@ -202,13 +176,23 @@ def transparentOverlay(src, overlay, pos=(0, 0), scale=1):
 #%%
 #%%
 #%%
-rec = config['rec']
-
+rec = config['rec'] #auxiliar, nao apagar
 hydata = 'x x x x x x x x x x x x x x\r\n' #temporario enquanto a porta nao pega dados do shared memory
+result = cv.VideoWriter() #auxiliar, nao apagar.
+result.release()
+
 while True:
-   
+
     #%%CAPTURA O FRAME DA CAMERA
     # Capture frame-by-frame
+    frame_width = int(cap.get(3))
+    frame_height = int(cap.get(4))
+    
+    #mudar o tamanho do frame de video
+    zoom = config["zoom"]
+    size = (frame_width*zoom, frame_height*zoom)
+    
+    
     ret, frame = cap.read()
     try:
         frame = cv.resize(frame,size,fx=0,fy=0, interpolation = cv.INTER_CUBIC)
@@ -284,6 +268,8 @@ while True:
         color = config["color"]
         thickness = config["thickness"]
         tprop = config["zoomtlocprop"]
+        zoom = config["zoom"]
+        tprop = config["zoomtlocprop"]
     
     except:
         pass
@@ -342,7 +328,7 @@ while True:
         org2 = (org[0],org[1]+ix*lfjump) 
         cv.putText(frame, line, org2, font, fontScale, color, thickness, cv.LINE_AA) 
 
-    #%%REC
+    #%%Legenda rec ou stop
     fontScale2 = 0.5
     org2 = config['recloc']
     text = rec
@@ -358,16 +344,34 @@ while True:
     # Display the resulting frame
     cv.imshow('frame',frame)
     
-    #%%VIDEO RECORD
-    # Write the frame into the
-    if rec == "rec":
-        result.write(frame)
+        
+    #%% GRAVACAO DO VIDEO e criacao do nome do arquivo
     
+    # Below VideoWriter object will create
+    # a frame of above defined The output 
+    fps = config["fps"]
+    # fps = cap.get(cv.CAP_PROP_FPS)
+    if rec == "rec" and not result.isOpened():
+        video_filename = "video_" + datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S") + '.avi'
+        print("criando arquivo de video %s"%video_filename)
+        result = cv.VideoWriter(video_filename, 
+                                 cv.VideoWriter_fourcc(*'XVID'),
+                                 fps,#fps é referente ao frame rate da camera
+                                 size)     
+    
+    elif rec == "rec" and result.isOpened():
+        result.write(frame)
+            
+    else:
+        result.release()
+        
     if cv.waitKey(10) == ord('r'):
         if rec == "rec":
             rec = 'stop'
         else:
             rec = 'rec'
+
+#%% TECLA DE ENCERRAMENTO DO PROGRAMA
                 
     if cv.waitKey(10) == ord('q'):
         break
